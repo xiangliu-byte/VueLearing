@@ -40,7 +40,7 @@ interface Target {
   excerpt: string
 }
 
- interface Author {
+interface Author {
   type: string
   user_type: string
   id: string
@@ -51,18 +51,18 @@ interface Target {
   avatar_url: string
 }
 
- interface Children {
+interface Children {
   type: string
   thumbnail: string
 }
 
- interface CardLabel {
+interface CardLabel {
   type: string
   icon: string
   night_icon: string
 }
 
- interface Paging {
+interface Paging {
   is_end: boolean
   is_start: boolean
   next: string
@@ -70,12 +70,12 @@ interface Target {
   totals: number
 }
 
- interface HeadZone {
+interface HeadZone {
   type: string
   data: Daum2[]
 }
 
- interface Daum2 {
+interface Daum2 {
   id: string
   link_url: string
   title: string
@@ -85,12 +85,12 @@ interface Target {
   tag_bg_color: string
 }
 
- interface HeadZone2 {
+interface HeadZone2 {
   type: string
   data: Daum3[]
 }
 
- interface Daum3 {
+interface Daum3 {
   id: string
   link_url: string
   title: string

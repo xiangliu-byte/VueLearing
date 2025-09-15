@@ -1,107 +1,5 @@
-<template>
-  <!-- 主容器 -->
-  <div class="zhihu-hot-container">
-    <!-- 头部区域 -->
-    <header class="hot-header">
-      <div class="header-content">
-        <div class="logo-group">
-         
-        
-        </div>
-        <button class="more-btn">
-          <i class="fa fa-ellipsis-h"></i>
-        </button>
-      </div>
-    </header>
-
-    <!-- 内容区域 -->
-    <main class="hot-content">
-      <!-- 加载状态 -->
-      <div class="loading-state" v-if="loading">
-        <div class="spinner"></div>
-      </div>
-
-      <!-- 错误提示 -->
-      <div class="error-state" v-if="error">
-        <i class="fa fa-exclamation-circle"></i>
-        <span>{{ error }}</span>
-      </div>
-
-      <!-- 热榜列表 -->
-      <div class="hot-list" v-if="!loading && !error">
-        <div 
-          v-for="(item, index) in list" 
-          :key="item.id" 
-          class="hot-item"
-          @click="toggleHot(item.target.id)"
-        >
-          <!-- 排名 -->
-          <div class="item-rank">
-            <span :class="{ top3: index < 3 }">{{ index + 1 }}</span>
-          </div>
-          
-          <!-- 内容区 -->
-          <div class="item-content">
-            <h3 class="item-title">{{ item.target.title }}</h3>
-            
-            <div class="item-meta">
-              <span class="meta-item answer-count">
-                <i class="fa fa-comment-o"></i>
-                {{ formatNumber(item.target.answer_count) }}回答
-              </span>
-              <span class="meta-item follow-count">
-                <i class="fa fa-eye-o"></i>
-                {{ formatNumber(item.target.follower_count) }}关注
-              </span>
-              <span class="meta-item author">
-                <i class="fa fa-user-o"></i>
-                {{ item.target.author.name }}
-              </span>
-              <span class="meta-item trend" :class="getTrendClass(item.trend)">
-                <i v-if="item.trend > 0" class="fa fa-arrow-up"></i>
-                <i v-if="item.trend < 0" class="fa fa-arrow-down"></i>
-                {{ item.detail_text }}
-              </span>
-            </div>
-          </div>
-          
-          <!-- 图片区 -->
-          <div class="item-image" v-if="hasThumbnail(item)">
-            <img 
-              :src="getFirstThumbnail(item)" 
-              alt="热榜相关图片" 
-              class="thumbnail"
-            >
-            <div class="image-overlay"></div>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- 底部区域 -->
-    <footer class="hot-footer" v-if="!loading && !error">
-      <!-- 加载更多 -->
-      <button 
-        class="load-more-btn" 
-        v-if="!paging.is_end"
-        @click="loadMore"
-        :disabled="loading"
-      >
-        <i class="fa fa-refresh"></i>
-        <span>加载更多</span>
-      </button>
-      
-      <!-- 已加载全部 -->
-      <div class="end-message" v-if="paging.is_end">
-        <i class="fa fa-check-circle"></i>
-        <span>已经加载全部内容</span>
-      </div>
-    </footer>
-  </div>
-</template>
-
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue'
 
 // 类型定义区域
 interface ZhiHuHotList {
@@ -205,18 +103,18 @@ interface Daum3 {
 }
 
 // 状态管理区域
-const list = ref<ZhiHuHot[]>([]);
+const list = ref<ZhiHuHot[]>([])
 const paging = ref<Paging>({
   is_end: false,
   is_start: true,
   next: '',
   previous: '',
-  totals: 0
-});
-const freshText = ref('');
-const loading = ref(true);
-const error = ref('');
-const api = 'https://m1.apifoxmock.com/m1/7074910-0-default';
+  totals: 0,
+})
+const freshText = ref('')
+const loading = ref(true)
+const error = ref('')
+const api = 'https://m1.apifoxmock.com/m1/7074910-0-default'
 
 // 工具函数区域
 /**
@@ -224,34 +122,34 @@ const api = 'https://m1.apifoxmock.com/m1/7074910-0-default';
  */
 const formatNumber = (num: number): string => {
   if (num >= 10000) {
-    return (num / 10000).toFixed(1) + 'w';
+    return `${(num / 10000).toFixed(1)}w`
   }
   if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'k';
+    return `${(num / 1000).toFixed(1)}k`
   }
-  return num.toString();
-};
+  return num.toString()
+}
 
 /**
  * 判断是否有缩略图
  */
 const hasThumbnail = (item: ZhiHuHot): boolean => {
-  return item.children && item.children.length > 0 && item.children[0].thumbnail;
-};
+  return item.children && item.children.length > 0 && item.children[0].thumbnail
+}
 
 /**
  * 获取第一张缩略图URL
  */
 const getFirstThumbnail = (item: ZhiHuHot): string => {
-  return item.children && item.children.length > 0 ? item.children[0].thumbnail : '';
-};
+  return item.children && item.children.length > 0 ? item.children[0].thumbnail : ''
+}
 
 /**
  * 根据趋势获取样式类
  */
 const getTrendClass = (trend: number): string => {
-  return trend > 0 ? 'up' : trend < 0 ? 'down' : '';
-};
+  return trend > 0 ? 'up' : trend < 0 ? 'down' : ''
+}
 
 // 数据请求区域
 /**
@@ -260,57 +158,161 @@ const getTrendClass = (trend: number): string => {
  */
 const getData = async (url?: string) => {
   try {
-    loading.value = true;
-    const requestUrl = url || `${api}/zhihuHot/list`;
-    const response = await fetch(requestUrl);
-    
+    loading.value = true
+    const requestUrl = url || `${api}/zhihuHot/list`
+    const response = await fetch(requestUrl)
+
     if (!response.ok) {
-      throw new Error(`请求失败: ${response.status}`);
+      throw new Error(`请求失败: ${response.status}`)
     }
-    
-    const res: ZhiHuHotList = await response.json();
-    
+
+    const res: ZhiHuHotList = await response.json()
+
     // 处理数据
     if (url) {
       // 加载更多 - 追加数据
-      list.value = [...list.value, ...res.data];
-    } else {
-      // 首次加载 - 替换数据
-      list.value = res.data;
+      list.value = [...list.value, ...res.data]
     }
-    
-    paging.value = res.paging;
-    freshText.value = res.fresh_text;
-    error.value = '';
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : '获取数据失败，请稍后重试';
-    console.error('数据请求错误:', err);
-  } finally {
-    loading.value = false;
+    else {
+      // 首次加载 - 替换数据
+      list.value = res.data
+    }
+
+    paging.value = res.paging
+    freshText.value = res.fresh_text
+    error.value = ''
   }
-};
+  catch (err) {
+    error.value = err instanceof Error ? err.message : '获取数据失败，请稍后重试'
+    console.error('数据请求错误:', err)
+  }
+  finally {
+    loading.value = false
+  }
+}
 
 /**
  * 加载更多数据
  */
 const loadMore = () => {
   if (!paging.value.is_end && paging.value.next && !loading.value) {
-    getData(paging.value.next);
+    getData(paging.value.next)
   }
-};
+}
 
 /**
  * 打开知乎问题页面
  */
 const toggleHot = (id: number) => {
-  window.open(`https://www.zhihu.com/question/${id}`, '_blank');
-};
+  window.open(`https://www.zhihu.com/question/${id}`, '_blank')
+}
 
 // 生命周期钩子
 onMounted(() => {
-  getData(); // 组件挂载后获取数据
-});
+  getData() // 组件挂载后获取数据
+})
 </script>
+
+<template>
+  <!-- 主容器 -->
+  <div class="zhihu-hot-container">
+    <!-- 头部区域 -->
+    <header class="hot-header">
+      <div class="header-content">
+        <div class="logo-group" />
+        <button class="more-btn">
+          <i class="fa fa-ellipsis-h" />
+        </button>
+      </div>
+    </header>
+
+    <!-- 内容区域 -->
+    <main class="hot-content">
+      <!-- 加载状态 -->
+      <div v-if="loading" class="loading-state">
+        <div class="spinner" />
+      </div>
+
+      <!-- 错误提示 -->
+      <div v-if="error" class="error-state">
+        <i class="fa fa-exclamation-circle" />
+        <span>{{ error }}</span>
+      </div>
+
+      <!-- 热榜列表 -->
+      <div v-if="!loading && !error" class="hot-list">
+        <div
+          v-for="(item, index) in list"
+          :key="item.id"
+          class="hot-item"
+          @click="toggleHot(item.target.id)"
+        >
+          <!-- 排名 -->
+          <div class="item-rank">
+            <span :class="{ top3: index < 3 }">{{ index + 1 }}</span>
+          </div>
+
+          <!-- 内容区 -->
+          <div class="item-content">
+            <h3 class="item-title">
+              {{ item.target.title }}
+            </h3>
+
+            <div class="item-meta">
+              <span class="meta-item answer-count">
+                <i class="fa fa-comment-o" />
+                {{ formatNumber(item.target.answer_count) }}回答
+              </span>
+              <span class="meta-item follow-count">
+                <i class="fa fa-eye-o" />
+                {{ formatNumber(item.target.follower_count) }}关注
+              </span>
+              <span class="meta-item author">
+                <i class="fa fa-user-o" />
+                {{ item.target.author.name }}
+              </span>
+              <span class="meta-item trend" :class="getTrendClass(item.trend)">
+                <i v-if="item.trend > 0" class="fa fa-arrow-up" />
+                <i v-if="item.trend < 0" class="fa fa-arrow-down" />
+                {{ item.detail_text }}
+              </span>
+            </div>
+          </div>
+
+          <!-- 图片区 -->
+          <div v-if="hasThumbnail(item)" class="item-image">
+            <img
+              :src="getFirstThumbnail(item)"
+              alt="热榜相关图片"
+              class="thumbnail"
+            >
+            <div class="image-overlay" />
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 底部区域 -->
+    <footer v-if="!loading && !error" class="hot-footer">
+      <!-- 加载更多 -->
+      <button
+        v-if="!paging.is_end"
+        class="load-more-btn"
+        :disabled="loading"
+        @click="loadMore"
+      >
+        <i class="fa fa-refresh" />
+        <span>加载更多</span>
+      </button>
+
+      <!-- 已加载全部 -->
+      <div v-if="paging.is_end" class="end-message">
+        <i class="fa fa-check-circle" />
+        <span>已经加载全部内容</span>
+      </div>
+    </footer>
+  </div>
+</template>
 
 <style scoped>
 /* 基础样式 */
@@ -405,8 +407,12 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* 错误状态 */
@@ -590,12 +596,12 @@ onMounted(() => {
   .hot-item {
     flex-direction: column;
   }
-  
+
   .item-image {
     width: 100%;
     height: 180px;
   }
-  
+
   .item-rank {
     position: absolute;
     left: 12px;
@@ -607,12 +613,12 @@ onMounted(() => {
     border-radius: 50%;
     z-index: 1;
   }
-  
+
   .item-rank span {
     color: white;
     font-size: 14px;
   }
-  
+
   .item-content {
     position: relative;
     padding-top: 24px;
